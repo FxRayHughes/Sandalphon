@@ -6,7 +6,6 @@ import ink.ptms.sandalphon.util.Utils
 import io.izzel.taboolib.module.db.local.LocalFile
 import io.izzel.taboolib.module.inject.TFunction
 import io.izzel.taboolib.module.inject.TSchedule
-import org.bukkit.Bukkit
 import org.bukkit.block.Block
 import org.bukkit.configuration.file.FileConfiguration
 
@@ -20,9 +19,6 @@ object ScriptBlock {
 
     @TSchedule
     fun import() {
-        if (Bukkit.getPluginManager().getPlugin("Cronus") == null) {
-            return
-        }
         blocks.clear()
         data.getKeys(false).forEach {
             blocks.add(BlockData(Utils.toLocation(it.replace("__", ".")), BlockType.valueOf(data.getString("$it.type")!!), data.getStringList("$it.action"), data.getStringList("$it.condition")).run {
