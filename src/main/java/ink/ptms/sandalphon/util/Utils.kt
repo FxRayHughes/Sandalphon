@@ -7,6 +7,8 @@ import io.izzel.taboolib.kotlin.kether.common.util.LocalizedException
 import io.izzel.taboolib.module.inject.TInject
 import io.izzel.taboolib.module.locale.TLocale
 import io.izzel.taboolib.util.item.Items
+import io.lumine.xikage.mythicmobs.MythicMobs
+import io.lumine.xikage.mythicmobs.items.MythicItem
 import me.asgard.sacreditem.SacredItemBuilder
 import me.asgard.sacreditem.item.SacredItemManager
 import org.bukkit.Bukkit
@@ -22,6 +24,9 @@ object Utils {
 
     val asgardHook: Boolean
         get() = Bukkit.getPluginManager().isPluginEnabled("SacredItem")
+
+    val mythicMobsdHook: Boolean
+        get() = Bukkit.getPluginManager().isPluginEnabled("MythicMobs")
 
     val serializer = GsonBuilder().excludeFieldsWithoutExposeAnnotation()
         .registerTypeAdapter(
@@ -48,6 +53,9 @@ object Utils {
         if (asgardHook) {
             return SacredItemBuilder.buildItem(player, SacredItemManager.getInstance().getItem(item) ?: return null)
         }
+        if (mythicMobsdHook) {
+            return MythicMobs.inst().itemManager.getItemStack(item)
+        }
         return ZaphkielAPI.getItem(item, player)?.save()
     }
 
@@ -57,11 +65,22 @@ object Utils {
                 TLocale.Translate.setUncolored(it.split("-")[0]).trim()
             }.firstOrNull { itemStack.isSimilar(SacredItemManager.getInstance().getItem(it)) }
         }
+        if (mythicMobsdHook) {
+            return MythicMobs.inst().itemManager.items.firstOrNull { getItemStack(it) == itemStack }?.internalName
+        }
         val itemStream = ZaphkielAPI.read(itemStack)
         if (itemStream.isExtension()) {
             return itemStream.getZaphkielName()
         }
         return null
+    }
+
+    fun getItemStack(mythicItem: MythicItem): ItemStack {
+        return MythicMobs.inst().itemManager.getItemStack(mythicItem.internalName)
+    }
+
+    fun getMythicItem(itemStack: ItemStack): MythicItem? {
+        return MythicMobs.inst().itemManager.items.firstOrNull { getItemStack(it) == itemStack }
     }
 
     fun format(json: JsonElement): String {

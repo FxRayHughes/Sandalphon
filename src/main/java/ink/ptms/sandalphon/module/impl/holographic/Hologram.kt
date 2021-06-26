@@ -2,10 +2,12 @@ package ink.ptms.sandalphon.module.impl.holographic
 
 import ink.ptms.sandalphon.module.impl.holographic.data.HologramData
 import ink.ptms.sandalphon.util.Utils
+import ink.ptms.sandalphon.util.Utils.asDouble
 import io.izzel.taboolib.module.db.local.LocalFile
 import io.izzel.taboolib.module.inject.TFunction
 import io.izzel.taboolib.module.inject.TSchedule
 import org.bukkit.Bukkit
+import org.bukkit.Location
 import org.bukkit.configuration.file.FileConfiguration
 
 /**
@@ -20,11 +22,29 @@ object Hologram {
 
     val holograms = ArrayList<HologramData>()
 
+    fun add(id: String, location: String, info: MutableList<String>, check: MutableList<String>) {
+        holograms.add(HologramData(id, toLocation(location), info, check))
+    }
+
+    fun toLocation(source: String): Location {
+        return source.replace("__", ".").split(",").run {
+            Location(
+                Bukkit.getWorld(get(0)),
+                getOrElse(1) { "0" }.asDouble(),
+                getOrElse(2) { "0" }.asDouble(),
+                getOrElse(3) { "0" }.asDouble()
+            )
+        }
+    }
+
     @TSchedule
     fun import() {
         holograms.clear()
         data.getKeys(false).forEach {
-            holograms.add(HologramData(it, Utils.toLocation(data.getString("$it.location")!!), data.getStringList("$it.content"), data.getStringList("$it.condition")))
+            holograms.add(HologramData(it,
+                Utils.toLocation(data.getString("$it.location")!!),
+                data.getStringList("$it.content"),
+                data.getStringList("$it.condition")))
         }
     }
 

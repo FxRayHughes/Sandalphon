@@ -25,7 +25,7 @@ class TreasureChestCommand : BaseMainCommand(), Helper {
 
     @SubCommand(priority = 0.0, description = "新建宝藏", arguments = ["编辑内容?"], type = CommandType.PLAYER)
     fun create(sender: CommandSender, args: Array<String>) {
-        if (Bukkit.getPluginManager().getPlugin("Zaphkiel") == null && !Utils.asgardHook) {
+        if (Bukkit.getPluginManager().getPlugin("Zaphkiel") == null && !Utils.asgardHook && !Utils.mythicMobsdHook) {
             sender.error("该功能依赖 Zaphkiel 插件.")
             return
         }
@@ -53,7 +53,7 @@ class TreasureChestCommand : BaseMainCommand(), Helper {
 
     @SubCommand(priority = 0.1, description = "移除宝藏", type = CommandType.PLAYER)
     fun remove(sender: CommandSender, args: Array<String>) {
-        if (Bukkit.getPluginManager().getPlugin("Zaphkiel") == null && !Utils.asgardHook) {
+        if (Bukkit.getPluginManager().getPlugin("Zaphkiel") == null && !Utils.asgardHook && !Utils.mythicMobsdHook) {
             sender.error("该功能依赖 Zaphkiel 插件.")
             return
         }
@@ -77,7 +77,7 @@ class TreasureChestCommand : BaseMainCommand(), Helper {
 
     @SubCommand(priority = 0.2, description = "编辑宝藏", type = CommandType.PLAYER)
     fun edit(sender: CommandSender, args: Array<String>) {
-        if (Bukkit.getPluginManager().getPlugin("Zaphkiel") == null && !Utils.asgardHook) {
+        if (Bukkit.getPluginManager().getPlugin("Zaphkiel") == null && !Utils.asgardHook && !Utils.mythicMobsdHook) {
             sender.error("该功能依赖 Zaphkiel 插件.")
             return
         }
@@ -98,7 +98,7 @@ class TreasureChestCommand : BaseMainCommand(), Helper {
 
     @SubCommand(priority = 0.21, description = "编辑宝藏内容", type = CommandType.PLAYER)
     fun peek(sender: CommandSender, args: Array<String>) {
-        if (Bukkit.getPluginManager().getPlugin("Zaphkiel") == null && !Utils.asgardHook) {
+        if (Bukkit.getPluginManager().getPlugin("Zaphkiel") == null && !Utils.asgardHook && !Utils.mythicMobsdHook) {
             sender.error("该功能依赖 Zaphkiel 插件.")
             return
         }

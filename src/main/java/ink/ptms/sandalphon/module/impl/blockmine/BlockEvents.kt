@@ -43,9 +43,18 @@ class BlockEvents : Listener, Helper {
         if (e.block.type == result?.blockStructure?.origin) {
             e.isCancelled = true
             // 检查破坏工具
+            val item = e.player.inventory.itemInMainHand
             if (result.blockStructure.tool != null) {
-                if (Utils.asgardHook) {
-                    if (!Items.hasLore(e.player.inventory.itemInMainHand, result.blockStructure.tool)) {
+                if (Items.isNull(item)){
+                    return
+                }
+                val mythicItem = Utils.getMythicItem(item)
+                if (Utils.mythicMobsdHook && mythicItem != null) {
+                    if (!mythicItem.config.getStringList("Other.blockmine").contains(result.blockStructure.tool)) {
+                        return
+                    }
+                } else if (Utils.asgardHook) {
+                    if (!Items.hasLore(item, result.blockStructure.tool)) {
                         return
                     }
                 } else {
@@ -59,7 +68,11 @@ class BlockEvents : Listener, Helper {
                     }
                 }
             }
-            ink.ptms.sandalphon.module.impl.blockmine.event.BlockBreakEvent(e.player, result.blockData, result.blockState, result.blockStructure, e)
+            ink.ptms.sandalphon.module.impl.blockmine.event.BlockBreakEvent(e.player,
+                result.blockData,
+                result.blockState,
+                result.blockStructure,
+                e)
                 .call()
                 .nonCancelled {
                     e.block.type = result.blockStructure.replace
@@ -68,10 +81,11 @@ class BlockEvents : Listener, Helper {
                     }
                     result.blockState.update = true
                     result.blockStructure.drop.filter { Numbers.random(it.chance) }.forEach {
-                        e.block.world.dropItem(e.block.location.add(0.5, 0.5, 0.5), (Utils.item(it.item, e.player) ?: return@forEach).run {
-                            this.amount = it.amount
-                            this
-                        }).pickupDelay = 20
+                        e.block.world.dropItem(e.block.location.add(0.5, 0.5, 0.5),
+                            (Utils.item(it.item, e.player) ?: return@forEach).run {
+                                this.amount = it.amount
+                                this
+                            }).pickupDelay = 20
                     }
                 }
         }
@@ -80,7 +94,9 @@ class BlockEvents : Listener, Helper {
     @EventHandler(priority = EventPriority.LOWEST)
     fun e(e: BlockBreakEvent) {
         if (e.player.isOp) {
-            if (Items.hasName(e.player.inventory.itemInMainHand, "场景魔杖") && Items.hasLore(e.player.inventory.itemInMainHand, "BlockMine")) {
+            if (Items.hasName(e.player.inventory.itemInMainHand,
+                    "场景魔杖") && Items.hasLore(e.player.inventory.itemInMainHand, "BlockMine")
+            ) {
                 e.isCancelled = true
                 val blockData = BlockMine.getBlock(e.player.inventory.itemInMainHand.itemMeta!!.lore!![1].unColored())
                 if (blockData == null) {
@@ -101,7 +117,9 @@ class BlockEvents : Listener, Helper {
                 e.player.info("实例已创建.")
                 BlockMine.export()
             }
-            if (Items.hasName(e.player.inventory.itemInMainHand, "调试魔杖") && Items.hasLore(e.player.inventory.itemInMainHand, "BlockMine")) {
+            if (Items.hasName(e.player.inventory.itemInMainHand,
+                    "调试魔杖") && Items.hasLore(e.player.inventory.itemInMainHand, "BlockMine")
+            ) {
                 e.isCancelled = true
                 val blockData = BlockMine.getBlock(e.player.inventory.itemInMainHand.itemMeta!!.lore!![1].unColored())
                 if (blockData == null) {
@@ -116,7 +134,9 @@ class BlockEvents : Listener, Helper {
                 blockData.build(pair.first)
                 e.player.info("实例已重建.")
             }
-            if (Items.hasName(e.player.inventory.itemInMainHand, "捕获魔杖") && Items.hasLore(e.player.inventory.itemInMainHand, "BlockMine")) {
+            if (Items.hasName(e.player.inventory.itemInMainHand,
+                    "捕获魔杖") && Items.hasLore(e.player.inventory.itemInMainHand, "BlockMine")
+            ) {
                 e.isCancelled = true
                 val args = e.player.inventory.itemInMainHand.itemMeta!!.lore!![1].unColored().split(" ")
                 val blockData = BlockMine.getBlock(args[0])
@@ -148,7 +168,9 @@ class BlockEvents : Listener, Helper {
             return
         }
         if (e.player.isOp && e.action == Action.RIGHT_CLICK_BLOCK) {
-            if (Items.hasName(e.player.inventory.itemInMainHand, "场景魔杖") && Items.hasLore(e.player.inventory.itemInMainHand, "BlockMine")) {
+            if (Items.hasName(e.player.inventory.itemInMainHand,
+                    "场景魔杖") && Items.hasLore(e.player.inventory.itemInMainHand, "BlockMine")
+            ) {
                 e.isCancelled = true
                 val blockData = BlockMine.getBlock(e.player.inventory.itemInMainHand.itemMeta!!.lore!![1].unColored())
                 if (blockData == null) {
@@ -165,7 +187,9 @@ class BlockEvents : Listener, Helper {
                 e.player.info("实例已删除.")
                 BlockMine.export()
             }
-            if (Items.hasName(e.player.inventory.itemInMainHand, "调试魔杖") && Items.hasLore(e.player.inventory.itemInMainHand, "BlockMine")) {
+            if (Items.hasName(e.player.inventory.itemInMainHand,
+                    "调试魔杖") && Items.hasLore(e.player.inventory.itemInMainHand, "BlockMine")
+            ) {
                 e.isCancelled = true
                 val blockData = BlockMine.getBlock(e.player.inventory.itemInMainHand.itemMeta!!.lore!![1].unColored())
                 if (blockData == null) {
@@ -178,11 +202,14 @@ class BlockEvents : Listener, Helper {
                     return
                 }
                 blockData.clean(pair.first)
-                pair.first.current = if (pair.first.current + 1 == blockData.progress.size) 0 else pair.first.current + 1
+                pair.first.current =
+                    if (pair.first.current + 1 == blockData.progress.size) 0 else pair.first.current + 1
                 blockData.build(pair.first)
                 e.player.info("实例阶段已切换.")
             }
-            if (Items.hasName(e.player.inventory.itemInMainHand, "捕获魔杖") && Items.hasLore(e.player.inventory.itemInMainHand, "BlockMine")) {
+            if (Items.hasName(e.player.inventory.itemInMainHand,
+                    "捕获魔杖") && Items.hasLore(e.player.inventory.itemInMainHand, "BlockMine")
+            ) {
                 e.isCancelled = true
                 val args = e.player.inventory.itemInMainHand.itemMeta!!.lore!![1].unColored().split(" ")
                 val blockData = BlockMine.getBlock(args[0])
@@ -242,7 +269,8 @@ class BlockEvents : Listener, Helper {
                         return@build
                     }
                     val direction = CommandBlockControl.getBlockFace(block)
-                    val structure = BlockStructure(direction, block.type, Material.AIR, block.location.subtract(mid).toVector())
+                    val structure =
+                        BlockStructure(direction, block.type, Material.AIR, block.location.subtract(mid).toVector())
                     blockProgress.structures.add(structure)
                 }
                 e.player.info("结构已储存.")
@@ -260,7 +288,10 @@ class BlockEvents : Listener, Helper {
         val minY = min(locA.y, locB.y)
         val maxZ = max(locA.z, locB.z)
         val minZ = min(locA.z, locB.z)
-        buildCube(Location(player.world, minX, minY, minZ), Location(player.world, maxX, maxY, maxZ), 1.0, filled) { loc ->
+        buildCube(Location(player.world, minX, minY, minZ),
+            Location(player.world, maxX, maxY, maxZ),
+            1.0,
+            filled) { loc ->
             action.invoke(loc)
         }
     }

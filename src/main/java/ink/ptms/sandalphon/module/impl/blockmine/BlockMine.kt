@@ -4,7 +4,9 @@ import ink.ptms.sandalphon.Sandalphon
 import ink.ptms.sandalphon.module.impl.blockmine.data.BlockData
 import ink.ptms.sandalphon.module.impl.blockmine.data.BlockState
 import ink.ptms.sandalphon.module.impl.blockmine.data.BlockStructure
+import ink.ptms.sandalphon.module.impl.holographic.Hologram
 import ink.ptms.sandalphon.util.Utils
+import io.izzel.taboolib.module.event.EventCancellable
 import io.izzel.taboolib.module.inject.TFunction
 import io.izzel.taboolib.module.inject.TSchedule
 import io.izzel.taboolib.util.Files
@@ -25,7 +27,7 @@ object BlockMine {
     }
 
     @Suppress("UNCHECKED_CAST")
-    @TSchedule
+    @TSchedule(delay = 1)
     fun import() {
         if (Bukkit.getPluginManager().getPlugin("Zaphkiel") == null && !Utils.asgardHook) {
             return
@@ -33,10 +35,29 @@ object BlockMine {
         blocks.clear()
         Files.folder(Sandalphon.plugin.dataFolder, "module/blockmine").listFiles()?.map { file ->
             if (file.name.endsWith(".json")) {
-                blocks.add(Utils.serializer.fromJson(file.readText(StandardCharsets.UTF_8), BlockData::class.java))
+                val block = Utils.serializer.fromJson(file.readText(StandardCharsets.UTF_8), BlockData::class.java)
+                blocks.add(block)
+                block.blocks.toList().forEach { state ->
+                    val location = state.location.clone().add(Sandalphon.settings.getDouble("BlockMine.x"),
+                        Sandalphon.settings.getDouble("BlockMine.y"),
+                        Sandalphon.settings.getDouble("BlockMine.z"))
+                    val info = Sandalphon.settings.getStringListColored("BlockMine.HD")
+                        .map {
+                            it.replace("{Type}", block.id)
+                        }
+                    Hologram.add("BlockMine-${fromLocation(location)}",
+                        fromLocation(location),
+                        info.toMutableList(),
+                        mutableListOf())
+                    Hologram.export()
+                }
             }
         }
         cached()
+    }
+
+    fun fromLocation(location: Location): String {
+        return "${location.world?.name},${location.x},${location.y},${location.z}".replace(".", "__")
     }
 
     @TFunction.Cancel

@@ -22,7 +22,7 @@ repositories {
 
 dependencies {
     implementation 'public:InternalAPI:1.0.0'
-    implementation 'public:MythicMobs:1.0.1'
+    implementation 'public:MythicMobs:4.11.0'
     implementation 'public:Zaphkiel:1.0.0'
     implementation 'ink.ptms.core:v11600:11600:all'
     implementation 'ink.ptms.core:v11200:11200:all'

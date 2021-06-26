@@ -35,13 +35,14 @@ object TreasureChest {
 
     @TSchedule
     fun import() {
-        if (Bukkit.getPluginManager().getPlugin("Zaphkiel") == null && !Utils.asgardHook) {
+        if (Bukkit.getPluginManager().getPlugin("Zaphkiel") == null && !Utils.asgardHook && !Utils.mythicMobsdHook) {
             return
         }
         chests.clear()
         data.getKeys(false).forEach {
             chests.add(ChestData(Utils.toLocation(it.replace("__", "."))).run {
-                item.addAll(data.getStringList("$it.item").map { item -> item.split(" ")[0] to NumberConversions.toInt(item.split(" ")[1]) })
+                item.addAll(data.getStringList("$it.item")
+                    .map { item -> item.split(" ")[0] to NumberConversions.toInt(item.split(" ")[1]) })
                 if (data.contains("$it.link")) {
                     link = Utils.toLocation(data.getString("$it.link")!!.replace("__", "."))
                 }
